@@ -1,0 +1,41 @@
+{
+    "model_id": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "output_dir": "./outputs/qwen2_5-vl-7b-local-lora",
+    "max_train_samples": null,
+    "num_train_epochs": 10.0,
+    "per_device_train_batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 0.0002,
+    "lr_scheduler_type": "cosine",
+    "warmup_ratio": 0.03,
+    "logging_steps": 5,
+    "save_steps": 200,
+    "save_total_limit": 1,
+    "gradient_checkpointing": true,
+    "dataset_name": "local_json",
+    "local_json_path": "/home/vlai-vqa-info/members/namlnb/train_data___.json",
+    "images_base_dir": "/mnt/VLAI_data/ViInfographicVQA/images/",
+    "use_qlora": true,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+    ],
+    "report_to": "none",
+    "dataloader_drop_last": true,
+    "dataloader_num_workers": 0,
+    "ddp_find_unused_parameters": false,
+    "ddp_backend": "nccl",
+    "max_image_long_side": 448,
+    "bf16": true,
+    "max_length": 512,
+    "lora_r": 8
+}
+
+

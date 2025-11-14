@@ -1,0 +1,72 @@
+[
+  {
+    "question_id": "1",
+    "image_paths": [
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-11-25_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-9-22_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/NGOC-THOITIET12-08-2008_NGOC_NGOC_NGOC_NGOC.jpg"
+    ],
+    "image_type": "Dự báo thời tiết",
+    "answer_source": "Multi-Image Spans",
+    "question": "Nhiệt độ (thấp nhất - cao nhất) tại Hà Nội vào ngày 25/11/2015 và ngày 22/09/2015 lần lượt là bao nhiêu?",
+    "answer": "19°C - 25°C; 26°C - 31°C",
+    "predict": "19° - 25°C, 26° - 31°C",
+    "gt": "19°C - 25°C; 26°C - 31°C"
+  },
+  {
+    "question_id": "2",
+    "image_paths": [
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-11-25_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-9-22_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/NGOC-THOITIET12-08-2008_NGOC_NGOC_NGOC_NGOC.jpg"
+    ],
+    "image_type": "Dự báo thời tiết",
+    "answer_source": "Non-Span",
+    "question": "Chênh lệch nhiệt độ thấp nhất (độ C) tại khu vực Đông Bắc Bộ giữa ngày 22/09/2015 và 25/11/2015 là bao nhiêu?",
+    "answer": "4",
+    "predict": "7",
+    "gt": "4"
+  },
+  {
+    "question_id": "3",
+    "image_paths": [
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-11-25_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-9-22_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/NGOC-THOITIET12-08-2008_NGOC_NGOC_NGOC_NGOC.jpg"
+    ],
+    "image_type": "Dự báo thời tiết",
+    "answer_source": "Multi-Image Spans",
+    "question": "Nhiệt độ thấp nhất tại khu vực Tây Bắc Bộ vào ngày 25/11/2015 và 22/09/2015 lần lượt là bao nhiêu?",
+    "answer": "17-20°C; 22-25°C",
+    "predict": "17° - 20°C, 22° - 25°C",
+    "gt": "17-20°C; 22-25°C"
+  },
+  {
+    "question_id": "4",
+    "image_paths": [
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-11-25_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/2015-9-22_NGOC.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/NGOC-THOITIET12-08-2008_NGOC_NGOC_NGOC_NGOC.jpg"
+    ],
+    "image_type": "Dự báo thời tiết",
+    "answer_source": "Cross-Image Synthesis",
+    "question": "So sánh nhiệt độ cao nhất ở Tây Nguyên vào ngày 25/11/2015 và ngày 22/09/2015, ngày nào có nhiệt độ cao hơn và hơn bao nhiêu độ?",
+    "answer": "22/09/2015; 3°C",
+    "predict": "22/09/2015; 3 độ",
+    "gt": "22/09/2015; 3°C"
+  },
+  {
+    "question_id": "5",
+    "image_paths": [
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/dem-17-ngay-18-6-2017-h84.jpg",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/img-5015.JPG",
+      "/mnt/VLAI_data/ViInfographicVQA/filtered_outliers/Dự báo thời tiết/thoi-tiet-2016-03-dem24ngay25-h84.jpg"
+    ],
+    "image_type": "Dự báo thời tiết",
+    "answer_source": "Cross-Image Synthesis",
+    "question": "So sánh nhiệt độ cao nhất ở Nam Bộ vào ngày 11/09/2016 và ngày 18/06/2017, ngày nào có nhiệt độ cao hơn và hơn bao nhiêu độ?",
+    "answer": "18/06/2017; 1°C",
+    "predict": "ngày 11/09/2016; 1°C",
+    "gt": "18/06/2017; 1°C"
+  }
+]

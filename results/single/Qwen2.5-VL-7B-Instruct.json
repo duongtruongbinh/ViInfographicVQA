@@ -1,0 +1,57 @@
+[
+  {
+    "image_id": "3433",
+    "question_id": "33918",
+    "answer": "VÀNG MIẾNG 1L, 10L, 1KG",
+    "answer_source": "Image-span",
+    "element": "Diagram/Graph",
+    "image_type": "Kinh tế - Hội nhập",
+    "operation": "None",
+    "question": "Đường biểu diễn màu vàng trên đồ thị thể hiện loại vàng nào?",
+    "predict": "Vàng miếng"
+  },
+  {
+    "image_id": "3433",
+    "question_id": "33922",
+    "answer": "4/12/2024",
+    "answer_source": "Image-span",
+    "element": "Text",
+    "image_type": "Kinh tế - Hội nhập",
+    "operation": "None",
+    "question": "Giá vàng SJC được cập nhật vào buổi sáng ngày nào?",
+    "predict": "4/12/2024"
+  },
+  {
+    "image_id": "3433",
+    "question_id": "33920",
+    "answer": "85,5 TRIỆU ĐỒNG/LƯỢNG, 84,3 TRIỆU ĐỒNG/LƯỢNG",
+    "answer_source": "Multi-span",
+    "element": "Diagram/Graph",
+    "image_type": "Kinh tế - Hội nhập",
+    "operation": "None",
+    "question": "Giá bán ra của vàng miếng và vàng nhẫn vào ngày 4/12/2024 lần lượt là bao nhiêu?",
+    "predict": "85,5 triệu đồng/lượng và 84,3 triệu đồng/lượng"
+  },
+  {
+    "image_id": "3433",
+    "question_id": "33924",
+    "answer": "9h30 hàng ngày, sjc.com.vn",
+    "answer_source": "Multi-span",
+    "element": "Text",
+    "image_type": "Kinh tế - Hội nhập",
+    "operation": "None",
+    "question": "Giá vàng được lấy vào thời điểm nào và nguồn thông tin được lấy từ đâu?",
+    "predict": "9h30 hàng ngày, sjc.com.vn"
+  },
+  {
+    "image_id": "3433",
+    "question_id": "33921",
+    "answer": "90,0",
+    "answer_source": "Image-span",
+    "element": "Diagram/Graph",
+    "image_type": "Kinh tế - Hội nhập",
+    "operation": "None",
+    "question": "Giá trị lớn nhất trên trục tung của đồ thị là bao nhiêu (triệu đồng/lượng)?",
+    "predict": "90,0"
+  }
+]

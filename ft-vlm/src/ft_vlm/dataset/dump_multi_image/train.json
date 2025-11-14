@@ -1,0 +1,31 @@
+[{
+    "id": 1,
+    "input": "Translate to French: Hello world",
+    "image": "cc-learning/src/cc_learning/dataset/data/raw_vlm/images/Selection (13).png",
+    "output": "Bonjour le monde"
+  },
+  {
+    "id": 2,
+    "input": "Translate to French: Good morning",
+    "image": "cc-learning/src/cc_learning/dataset/data/raw_vlm/images/Selection (13).png",
+    "output": "Bonjour"
+  },
+  {
+    "id": 3,
+    "input": "Answer: What is the capital of France?",
+    "image": "cc-learning/src/cc_learning/dataset/data/raw_vlm/images/Selection (13).png",
+    "output": "Paris"
+  },
+  {
+    "id": 4,
+    "input": "Paraphrase: The cat sat on the mat.",
+    "image": "cc-learning/src/cc_learning/dataset/data/raw_vlm/images/Selection (13).png",
+    "output": "A cat rested on the mat."
+  },
+  {
+    "id": 5,
+    "input": "Summarize: Machine learning enables computers to learn from data.",
+    "image": "cc-learning/src/cc_learning/dataset/data/raw_vlm/images/Selection (13).png",
+    "output": "ML lets computers learn from data."
+  }
+]
