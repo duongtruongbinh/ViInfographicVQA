@@ -2,15 +2,16 @@ import torch
 from PIL import Image
 from transformers import AutoModelForCausalLM, AutoProcessor
 from src.inference.single.models.base_model import VQAModel
-from src.inference.single.models.utils import get_system_prompt, parse_answer
+from src.common.utils import get_system_prompt, parse_answer
+from src.config import get_model_path
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class PhiModel(VQAModel):
-    def __init__(self, **kwargs):
+    def __init__(self, model_path: str = None, **kwargs):
         super().__init__(**kwargs)
-        self.model_path = "/mnt/dataset1/pretrained_fm/microsoft_Phi-4-multimodal-instruct"
+        self.model_path = model_path or get_model_path("phi")
         self._set_clean_model_name()
         self.load_model()
 

@@ -7,9 +7,56 @@ from typing import Any, Dict, List, Optional
 from datasets import Dataset
 
 
+def _resolve_image_path(
+    img_path: str, images_base_dir: Optional[str]
+) -> str:
+    """
+    Resolve image path strictly without basename fallback.
+    
+    Args:
+        img_path: Image path (relative or absolute)
+        images_base_dir: Base directory for relative paths
+        
+    Returns:
+        Resolved image path
+        
+    Raises:
+        ValueError: If path cannot be resolved or file doesn't exist
+    """
+    p = Path(img_path)
+    
+    if p.is_absolute():
+        if not p.exists():
+            raise ValueError(f"Image file not found: {p}")
+        return str(p)
+    
+    if images_base_dir:
+        resolved = Path(images_base_dir) / p
+        if not resolved.exists():
+            raise ValueError(
+                f"Image file not found: {resolved}. "
+                f"Original path: '{img_path}', base_dir: '{images_base_dir}'"
+            )
+        return str(resolved)
+    
+    # No base_dir, treat as relative to current directory
+    if not p.exists():
+        raise ValueError(
+            f"Image file not found: {p}. "
+            "Provide images_base_dir for relative paths."
+        )
+    return str(p.resolve())
+
+
 def _normalize_item(
     item: Dict[str, Any], images_base_dir: Optional[str]
 ) -> Dict[str, Any]:
+    """
+    Normalize dataset item to standard messages format.
+    
+    STRICT PATH RESOLUTION: Does not use basename fallback.
+    Paths must exactly match the expected location under images_base_dir.
+    """
     # If already in messages format, passthrough but normalize image paths
     if "messages" in item and isinstance(item["messages"], list):
         messages = []
@@ -20,12 +67,9 @@ def _normalize_item(
             for c in turn.get("content", []):
                 if isinstance(c, dict) and c.get("type") == "image":
                     img = c.get("image")
-                    if (
-                        isinstance(img, str)
-                        and images_base_dir
-                        and not Path(img).is_absolute()
-                    ):
-                        img = str(Path(images_base_dir) / img)
+                    if isinstance(img, str) and not Path(img).is_absolute():
+                        if images_base_dir:
+                            img = str(Path(images_base_dir) / img)
                     content.append({"type": "image", "image": img})
                 else:
                     content.append(c)
@@ -39,43 +83,27 @@ def _normalize_item(
     # Try to get image_paths (list) first for multi-image support
     image_paths = item.get("image_paths")
     if image_paths and isinstance(image_paths, list):
-        # Multi-image case
+        # Multi-image case - strict path resolution
         for img_path in image_paths:
             if isinstance(img_path, str):
                 p = Path(img_path)
-                if not p.is_absolute() and images_base_dir:
-                    # First try joining the relative path under images_base_dir
-                    candidate = Path(images_base_dir) / p
-                    if candidate.exists():
-                        images.append(str(candidate))
-                    else:
-                        # Fallback: try basename under images_base_dir
-                        basename_candidate = Path(images_base_dir) / p.name
-                        if basename_candidate.exists():
-                            images.append(str(basename_candidate))
-                        else:
-                            images.append(str(candidate))
+                if p.is_absolute():
+                    images.append(img_path)
+                elif images_base_dir:
+                    images.append(str(Path(images_base_dir) / p))
                 else:
                     images.append(img_path)
     else:
-        # Single image case
+        # Single image case - strict path resolution
         image = item.get("image") or item.get("image_path") or item.get("img")
         if image and isinstance(image, str):
-            if images_base_dir:
-                p = Path(image)
-                if not p.is_absolute():
-                    # First try joining the relative path under images_base_dir
-                    candidate = Path(images_base_dir) / p
-                    if candidate.exists():
-                        image = str(candidate)
-                    else:
-                        # Fallback: try basename under images_base_dir
-                        basename_candidate = Path(images_base_dir) / p.name
-                        if basename_candidate.exists():
-                            image = str(basename_candidate)
-                        else:
-                            image = str(candidate)
-            images.append(image)
+            p = Path(image)
+            if p.is_absolute():
+                images.append(image)
+            elif images_base_dir:
+                images.append(str(Path(images_base_dir) / p))
+            else:
+                images.append(image)
 
     # Support multiple possible keys for text/labels
     question = item.get("question") or item.get("query") or item.get("input") or ""

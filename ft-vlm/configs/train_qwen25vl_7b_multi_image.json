@@ -13,9 +13,9 @@
     "save_total_limit": 1,
     "gradient_checkpointing": true,
     "dataset_name": "local_json",
-    "local_json_path": "/home/vlai-vqa-info/members/namlnb/data/multi_image_train_data.json",
-    "local_json_test_path": "/home/vlai-vqa-info/members/namlnb/data/multi_image_test_data.json",
-    "images_base_dir": "/mnt/VLAI_data/ViInfographicVQA/",
+    "local_json_path": null,
+    "local_json_test_path": null,
+    "images_base_dir": null,
     "use_qlora": true,
     "lora_alpha": 32,
     "lora_dropout": 0.05,
@@ -36,6 +36,6 @@
     "max_image_long_side": 448,
     "bf16": true,
     "max_length": 512,
-    "lora_r": 8
+    "lora_r": 8,
+    "_comment": "Set local_json_path, local_json_test_path, and images_base_dir before training"
 }
-

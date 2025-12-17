@@ -6,17 +6,6 @@ import os
 from pathlib import Path
 from typing import Optional, List, Tuple
 
-# Force single GPU before importing torch to avoid DataParallel issues with VLMs
-# Check if we're in distributed mode first
-_is_distributed = (
-    "RANK" in os.environ 
-    or "WORLD_SIZE" in os.environ 
-    or "LOCAL_RANK" in os.environ
-)
-if not _is_distributed and "CUDA_VISIBLE_DEVICES" not in os.environ:
-    # Set to use only GPU 0 to prevent automatic DataParallel
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
 from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from transformers import TrainingArguments
 from trl import SFTTrainer
@@ -90,16 +79,26 @@ class TrainConfig:
     lora_target_modules: Optional[List[str]] = None
 
 
-def _output_dir_for_model(model_id: str) -> str:
-    """Return absolute save directory under weight_save_train/<model_name>/.
+def _output_dir_for_model(model_id: str, base_dir: Optional[str] = None) -> str:
+    """
+    Return output directory for model weights.
 
     The model name is derived from the last path segment of model_id.
+    Base directory can be configured via the base_dir parameter or 
+    VQA_OUTPUT_DIR environment variable.
+    
+    Args:
+        model_id: Model identifier (e.g., "Qwen/Qwen2.5-VL-7B-Instruct")
+        base_dir: Optional base directory override
+        
+    Returns:
+        Path to output directory
     """
-    base_dir = Path(
-        "/home/vlai-vqa-info/members/namlnb/fine-tuning-vlm/ft-vlm/weight_save_train"
-    )
+    if base_dir is None:
+        base_dir = os.environ.get("VQA_OUTPUT_DIR", "./outputs")
+    output_base = Path(base_dir)
     model_name = model_id.split("/")[-1].replace(" ", "_")
-    return str(base_dir / model_name)
+    return str(output_base / model_name)
 
 
 def _build_sft_config(cfg: TrainConfig) -> TrainingArguments:
@@ -294,8 +293,10 @@ def run_training(cfg: TrainConfig) -> None:
         cfg.model_id, qlora_cfg, device_map=device_map_hint
     )
 
-    # Force saving to the requested absolute directory structure based on model name
-    cfg.output_dir = _output_dir_for_model(cfg.model_id)
+    # Use configured output_dir, or derive from model name if using default
+    if cfg.output_dir == "./outputs/qwen2-vl-7b-trl-sft-chartqa":
+        # Default value - derive from model name
+        cfg.output_dir = _output_dir_for_model(cfg.model_id)
 
     if cfg.use_qlora:
         # Ensure base model is properly configured for k-bit training

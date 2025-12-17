@@ -1,67 +1,76 @@
 #!/bin/bash
+# Inference script for fine-tuned VLM models
+# Configure paths below before running
 
-# Script to run inference on test data
-# This will load the trained model and run predictions on the test dataset
+set -e
 
-set -e  # Exit on error
+# ==============================================================================
+# CONFIGURATION - Set these paths before running
+# ==============================================================================
+BASE_MODEL_ID="${BASE_MODEL_ID:-Qwen/Qwen2.5-VL-7B-Instruct}"
+ADAPTER_DIR="${ADAPTER_DIR:-./outputs/Qwen2.5-VL-7B-Instruct}"
+INPUT_JSON="${INPUT_JSON:-./data/test.json}"
+OUTPUT_JSON="${OUTPUT_JSON:-./results/inference_results.json}"
+IMAGES_BASE_DIR="${IMAGES_BASE_DIR:-}"
+
+# Inference parameters
+MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-128}"
+TEMPERATURE="${TEMPERATURE:-0.2}"
+TOP_P="${TOP_P:-0.9}"
+GPU_ID="${GPU_ID:-0}"
+
+# ==============================================================================
+# SCRIPT START
+# ==============================================================================
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
 echo "================================================================================"
-echo "Running Inference on Test Data"
+echo "Running Inference"
 echo "================================================================================"
-
-# # Activate conda environment
-# echo "Activating conda environment: namlnb_ft-vlm"
-# source /home/vlai-vqa-info/anaconda3/bin/activate namlnb_ft-vlm
-
-# Navigate to project directory
-cd /home/vlai-vqa-info/members/namlnb/fine-tuning-vlm/ft-vlm
-
-# Configuration
-BASE_MODEL_ID="Qwen/Qwen2.5-VL-7B-Instruct"
-ADAPTER_DIR="/home/vlai-vqa-info/members/namlnb/fine-tuning-vlm/ft-vlm/weight_save_train/Qwen2.5-VL-7B-Instruct/checkpoint-91825"
-INPUT_JSON="/home/vlai-vqa-info/members/namlnb/data/multi_image_test_data.json"
-OUTPUT_JSON="/home/vlai-vqa-info/members/namlnb/fine-tuning-vlm/ft-vlm/weight_save_train/inference_results_test_merge_inf_only_multi.json"
-IMAGES_BASE_DIR="/mnt/VLAI_data/ViInfographicVQA/"
-
 echo ""
 echo "Configuration:"
-echo "  Base Model: $BASE_MODEL_ID"
-echo "  Adapter: $ADAPTER_DIR"
-echo "  Input Data: $INPUT_JSON"
-echo "  Output File: $OUTPUT_JSON"
-echo "  Images Base Dir: $IMAGES_BASE_DIR"
+echo "  Base Model:      $BASE_MODEL_ID"
+echo "  Adapter Dir:     $ADAPTER_DIR"
+echo "  Input JSON:      $INPUT_JSON"
+echo "  Output JSON:     $OUTPUT_JSON"
+echo "  Images Base Dir: ${IMAGES_BASE_DIR:-<not set>}"
+echo "  GPU ID:          $GPU_ID"
 echo ""
 
-# Check if files exist
+# Validate required files
 if [ ! -f "$INPUT_JSON" ]; then
-    echo "ERROR: Input JSON file not found: $INPUT_JSON"
+    echo "ERROR: Input JSON not found: $INPUT_JSON"
+    echo "Set INPUT_JSON environment variable or update this script."
     exit 1
 fi
 
 if [ ! -d "$ADAPTER_DIR" ]; then
     echo "ERROR: Adapter directory not found: $ADAPTER_DIR"
+    echo "Set ADAPTER_DIR environment variable or update this script."
     exit 1
 fi
 
-# Run inference
-echo "Starting inference..."
-CUDA_VISIBLE_DEVICES=0 python -m src.ft_vlm.inference.run \
-    --input_json "$INPUT_JSON" \
-    --output_json "$OUTPUT_JSON" \
-    --adapter_dir "$ADAPTER_DIR" \
-    --base_model_id "$BASE_MODEL_ID" \
-    --images_base_dir "$IMAGES_BASE_DIR" \
-    --max_new_tokens 128 \
-    --temperature 0.2 \
-    --top_p 0.9
+# Build command
+CMD="CUDA_VISIBLE_DEVICES=$GPU_ID python -m ft_vlm.inference.run"
+CMD="$CMD --input_json \"$INPUT_JSON\""
+CMD="$CMD --output_json \"$OUTPUT_JSON\""
+CMD="$CMD --adapter_dir \"$ADAPTER_DIR\""
+CMD="$CMD --base_model_id \"$BASE_MODEL_ID\""
+CMD="$CMD --max_new_tokens $MAX_NEW_TOKENS"
+CMD="$CMD --temperature $TEMPERATURE"
+CMD="$CMD --top_p $TOP_P"
+
+if [ -n "$IMAGES_BASE_DIR" ]; then
+    CMD="$CMD --images_base_dir \"$IMAGES_BASE_DIR\""
+fi
+
+echo "Running: $CMD"
+echo ""
+eval "$CMD"
 
 echo ""
 echo "================================================================================"
 echo "Inference Complete!"
 echo "================================================================================"
 echo "Results saved to: $OUTPUT_JSON"
-echo ""
-echo "To view the results:"
-echo "  head -n 50 $OUTPUT_JSON"
-echo ""
-

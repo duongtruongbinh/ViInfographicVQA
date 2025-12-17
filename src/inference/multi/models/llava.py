@@ -2,16 +2,17 @@ import torch
 from pathlib import Path
 from transformers import LlavaNextForConditionalGeneration, LlavaNextProcessor
 from src.inference.multi.models.base_model import MultiImageVQAModel
-from src.inference.multi.models.utils import load_images, parse_answer, get_system_prompt, format_user_input
+from src.common.utils import load_images, parse_answer, get_system_prompt, format_user_input
+from src.config import get_model_path, get_images_dir
 
 
 class LlavaModel(MultiImageVQAModel):
-    def __init__(self):
+    def __init__(self, model_path: str = None, images_base_dir: str = None):
         super().__init__()
-        self.model_path = "/mnt/dataset1/pretrained_fm/unsloth_llava-v1.6-mistral-7b-hf-bnb-4bit"
+        self.model_path = model_path or get_model_path("llava")
         self._set_clean_model_name()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.base_img_dir = Path("/mnt/VLAI_data/ViInfographicVQA/images")
+        self.base_img_dir = Path(images_base_dir) if images_base_dir else Path(get_images_dir() or ".")
         self.load_model()
 
     def load_model(self):

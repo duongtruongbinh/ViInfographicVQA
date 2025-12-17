@@ -1,188 +1,150 @@
-# ViInfographicVQA
+# ViInfographicVQA: A Benchmark for Single and Multi-image Visual Question Answering on Vietnamese Infographics
 
-Vietnamese Infographic Visual Question Answering - A comprehensive system for answering questions about Vietnamese infographics using vision-language models.
+[![arXiv](https://img.shields.io/badge/arXiv-2512.12424-b31b1b.svg)](https://arxiv.org/abs/2512.12424)
+[![Hugging Face Datasets](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-ViInfographicVQA-yellow)](https://huggingface.co/datasets/duytranus/ViInfographicVQA)
 
-## Overview
+This repository contains the official implementation and evaluation code for the paper **"ViInfographicVQA: A Benchmark for Single and Multi-image Visual Question Answering on Vietnamese Infographics"**.
 
-This repository contains a complete pipeline for training and evaluating vision-language models on Vietnamese infographic datasets. The project supports both single-image and multi-image question answering tasks, with fine-tuning capabilities for Qwen2.5-VL models.
+## 📰 News
+* **[2025/12]** 🔥 Our paper has been accepted to **AI4Research Workshop @ AAAI 2026**!
+* **[2025/12]** We released the [ViInfographicVQA dataset](https://huggingface.co/datasets/duytranus/ViInfographicVQA) and the evaluation code.
 
-## Project Structure
+## 🌟 Overview
+**ViInfographicVQA** is the first large-scale benchmark for Vietnamese Infographic VQA, comprising over **6,747 infographics** and **20,409 QA pairs**. It evaluates models on two distinct tasks:
+1.  **Single-image QA:** Traditional VQA requiring layout understanding and OCR.
+2.  **Multi-image QA:** A novel task requiring cross-image reasoning, evidence synthesis, and arithmetic operations across multiple semantically related infographics.
 
-```
+![Overview](assets/samples.png)
+
+## 📂 Project Structure
+
+```text
 ViInfographicVQA/
-├── ft-vlm/                    # Fine-tuning module for Qwen2.5-VL models
-│   ├── src/ft_vlm/           # Core fine-tuning code
-│   │   ├── dataset/          # Dataset loaders (single + multi-image)
-│   │   ├── fine_tuning/      # Training scripts with TRL
-│   │   ├── inference/        # Inference scripts
-│   │   └── model/            # Model wrappers
-│   ├── configs/              # Training configuration files
-│   ├── weight_save_train/    # Saved model checkpoints
-│   ├── tests/                # Test files
-│   ├── run_inference_test.sh # Inference convenience script
-│   └── README.md             # Detailed fine-tuning documentation
-├── src/                      # Main inference and evaluation code
-│   └── inference/            # Inference modules
-│       ├── single/           # Single-image VQA inference
-│       └── multi/            # Multi-image VQA inference
-├── data/                     # Dataset files
-├── results/                  # Evaluation results
-├── requirements.txt          # Main project dependencies
-└── README.md                 # This file
+├── data/                 # Dataset placeholders
+├── ft-vlm/               # Fine-tuning module configuration
+├── results/              # Evaluation output
+├── src/                  # Main source code
+│   ├── common/           # Shared utilities and metrics (ANLS, Accuracy)
+│   └── inference/        # Inference engines
+│       ├── single/       # Single-image benchmarks
+│       └── multi/        # Multi-image benchmarks
+├── config.py             # Centralized path configuration
+├── pyproject.toml        # Project dependencies & build config
+└── uv.lock               # Dependency lock file (ensures reproducibility)
 ```
 
-## Quick Start
+## 🛠️ Installation
 
-### Installation
+We use [uv](https://github.com/astral-sh/uv) for extremely fast dependency management. Install uv from [here](https://docs.astral.sh/uv/getting-started/installation/).
 
-1. **Main Project Dependencies:**
+1. **Clone the repository:**
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/duongtruongbinh/ViInfographicVQA.git
+cd ViInfographicVQA
 ```
 
-2. **Fine-tuning Module (ft-vlm):**
+
+2. **Sync Environment:**
+This command creates a virtual environment and installs all dependencies (including `torch`, `transformers`, `flash-attn` compatible packages) defined in `uv.lock`.
 ```bash
-cd ft-vlm
-pip install -e .
+uv sync
 ```
 
-### Fine-tuning Models
-
-For detailed fine-tuning instructions, see [ft-vlm/README.md](ft-vlm/README.md).
-
-**Quick Training Example:**
+*Optional: If you want to use Flash Attention 2 (Recommended for speed):*
 ```bash
-cd ft-vlm
-CUDA_VISIBLE_DEVICES=0 python -m src.ft_vlm.fine_tuning.train \
-    --config configs/train_qwen25vl_7b_multi_image_merge.json
+uv pip install flash-attn --no-build-isolation
 ```
 
-**Quick Inference Example:**
+
+4. **Setup Environment Variables:**
+Create a `.env` file in the root directory:
 ```bash
-cd ft-vlm
-bash run_inference_test.sh
+export VQA_DATA_DIR="./data"
+export VQA_IMAGES_DIR="/path/to/your/images"
+export VQA_OUTPUT_DIR="./results"
+# Optional: Point to local model weights if not using HuggingFace cache
+export VQA_MODEL_QWENVL="Qwen/Qwen2.5-VL-7B-Instruct"
+export VQA_MODEL_INTERNVL="OpenGVLab/InternVL3_5-8B"
 ```
 
-### Data Formats
 
-The system supports two data formats:
+## 📊 Dataset Preparation
 
-**Single-Image Format:**
-```json
-{
-  "id": 27333,
-  "input": "Theo biểu đồ thông tin, những lợi ích chính của việc Anh gia nhập CPTPP là gì?",
-  "image": "/path/to/image.jpg",
-  "output": "nâng Tổng sản phẩm quốc nội (GDP)..."
+Download the dataset from [Hugging Face](https://huggingface.co/datasets/duytranus/ViInfographicVQA) and organize it as follows:
+
+```text
+data/
+├── train.json
+├── test.json
+├── images/           # Directory containing all infographic images
+│   ├── image_01.jpg
+│   └── ...
+```
+
+## 🚀 Inference & Evaluation
+
+You can run scripts using `uv run` (which automatically uses the virtual environment) or activate the environment first.
+
+### Single-image Evaluation
+
+```bash
+uv run python -m src.inference.single.run_inference \
+    qwenvl \
+    --data_path data/test.json \
+    --image_folder /path/to/images \
+    --output_dir results/single
+```
+
+### Multi-image Evaluation
+
+```bash
+uv run python -m src.inference.multi.run_inference \
+    qwenvl \
+    --data_path data/multi_image_test.json \
+    --output_dir results/multi
+```
+
+### Calculate Scores (ANLS)
+
+After inference, calculate the Average Normalized Levenshtein Similarity (ANLS) and Accuracy:
+
+```bash
+# For single-image results
+uv run python -m src.inference.single.calculate_scores --results-dir results/single
+
+# For multi-image results
+uv run python -m src.inference.multi.calculate_scores --results-dir results/multi
+```
+
+## 🚅 Fine-tuning (Qwen2.5-VL)
+
+The fine-tuning module is integrated into the project. We use `ft-vlm` (built on TRL and PEFT) for efficient instruction tuning.
+
+```bash
+# Example: Fine-tune on Multi-image task with LoRA
+uv run ft-vlm-train \
+    --config ft-vlm/configs/train_qwen25vl_7b_multi_image.json
+```
+
+Or using the python module directly:
+
+```bash
+uv run python -m src.ft_vlm.fine_tuning.train \
+    --config ft-vlm/configs/train_qwen25vl_7b_multi_image.json
+```
+
+## 📝 Citation
+
+If you find this code or dataset useful for your research, please cite our paper:
+
+```bibtex
+@misc{vandinh2025viinfographicvqa,
+  title={ViInfographicVQA: A Benchmark for Single and Multi-image Visual Question Answering on Vietnamese Infographics}, 
+  author={Tue-Thu Van-Dinh and Hoang-Duy Tran and Truong-Binh Duong and Mai-Hanh Pham and Binh-Nam Le-Nguyen and Quoc-Thai Nguyen},
+  year={2025},
+  eprint={2512.12424},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={[https://arxiv.org/abs/2512.12424](https://arxiv.org/abs/2512.12424)}, 
 }
 ```
-
-**Multi-Image Format:**
-```json
-{
-  "question_id": "272",
-  "image_paths": [
-    "/path/to/image1.jpg",
-    "/path/to/image2.jpg",
-    "/path/to/image3.jpg"
-  ],
-  "question": "Số lượng trường học được thống kê trong năm học 2021-2022 và năm học 2020-2021 lần lượt là bao nhiêu?",
-  "answer": "645; 2.543"
-}
-```
-
-The system automatically detects the format based on the presence of `image_paths` field.
-
-## Documentation
-
-- **Fine-tuning Guide**: See [ft-vlm/README.md](ft-vlm/README.md) for comprehensive documentation on:
-  - Training configuration
-  - Data format details
-  - Multi-GPU training
-  - Inference parameters
-  - Troubleshooting
-  - Technical details
-
-## Key Components
-
-### Fine-tuning Module (ft-vlm)
-
-The `ft-vlm` module provides:
-- **Training**: Supervised fine-tuning using TRL (Transformer Reinforcement Learning)
-- **LoRA/QLoRA**: Parameter-efficient fine-tuning support
-- **Multi-image Training**: Handle multiple images per sample
-- **Inference**: Batch inference with automatic image resizing
-
-### Main Inference Module (src/inference)
-
-The main inference module provides:
-- **Single-image VQA**: Answer questions about individual infographics
-- **Multi-image VQA**: Answer questions requiring multiple images
-- **Model Abstraction**: Support for different VQA model architectures
-
-## Configuration
-
-### Training Configuration
-
-Training configurations are stored in `ft-vlm/configs/`. Key parameters include:
-
-- Model selection (Qwen2.5-VL-3B or 7B)
-- LoRA parameters (rank, alpha, dropout)
-- Training hyperparameters (learning rate, batch size, epochs)
-- Image processing (max image size, resizing)
-- Dataset paths
-
-See [ft-vlm/README.md](ft-vlm/README.md) for detailed configuration options.
-
-### Inference Configuration
-
-Inference can be configured via command-line arguments:
-- `--max_image_size`: Control image resizing (default: 1280px)
-- `--max_new_tokens`: Maximum tokens to generate
-- `--temperature`: Sampling temperature
-- `--top_p`: Nucleus sampling parameter
-
-## Requirements
-
-### Main Project
-- Python >= 3.10
-- PyTorch >= 2.0.0
-- Transformers >= 4.40.0
-- See `requirements.txt` for full list
-
-### Fine-tuning Module
-- Additional dependencies for TRL, PEFT, QLoRA
-- See `ft-vlm/pyproject.toml` for full list
-
-## Usage Examples
-
-### Training a Model
-
-```bash
-# Single GPU training
-cd ft-vlm
-CUDA_VISIBLE_DEVICES=2 python -m src.ft_vlm.fine_tuning.train \
-    --config configs/train_qwen25vl_7b_multi_image_merge.json
-
-# Multi-GPU training
-CUDA_VISIBLE_DEVICES=0,1,2 torchrun --standalone --nnodes=1 --nproc_per_node=3 \
-    -m ft_vlm.fine_tuning.train \
-    --config configs/train_qwen25vl_7b_local.json
-```
-
-### Running Inference
-
-```bash
-cd ft-vlm
-python -m src.ft_vlm.inference.run \
-    --input_json /path/to/test.json \
-    --output_json ./results.json \
-    --adapter_dir ./weight_save_train/Qwen2.5-VL-7B-Instruct/checkpoint-91825 \
-    --base_model_id Qwen/Qwen2.5-VL-7B-Instruct \
-    --images_base_dir /path/to/images/ \
-    --max_new_tokens 128 \
-    --temperature 0.2 \
-    --top_p 0.9
-```
-
-

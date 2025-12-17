@@ -4,7 +4,8 @@ import torchvision.transforms as T
 from torchvision.transforms.functional import InterpolationMode
 from transformers import AutoModel, AutoTokenizer
 from src.inference.single.models.base_model import VQAModel
-from src.inference.single.models.utils import get_system_prompt, parse_answer
+from src.common.utils import get_system_prompt, parse_answer
+from src.config import get_model_path
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
@@ -71,9 +72,9 @@ def dynamic_preprocess(image, min_num: int = 1, max_num: int = 12, image_size: i
 
 
 class InternVLModel(VQAModel):
-    def __init__(self, **kwargs):
+    def __init__(self, model_path: str = None, **kwargs):
         super().__init__(**kwargs)
-        self.model_path = '/mnt/dataset1/pretrained_fm/OpenGVLab_InternVL3_5-8B'
+        self.model_path = model_path or get_model_path("internvl")
         self._set_clean_model_name()
         self.image_size = 448
         self.transform = build_transform(self.image_size)

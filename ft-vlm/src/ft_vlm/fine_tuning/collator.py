@@ -53,11 +53,12 @@ class VLMDataCollator:
                             p = Path(img)
                             if not p.is_absolute() and self.images_base_dir:
                                 p = Path(self.images_base_dir) / p
-                            try:
-                                img = Image.open(p).convert("RGB")
-                            except Exception:
-                                # Keep as original if opening fails
-                                pass
+                            if not p.exists():
+                                raise ValueError(
+                                    f"Image file not found: {p}. "
+                                    "Ensure all image paths are correct and files exist."
+                                )
+                            img = Image.open(p).convert("RGB")
                         if isinstance(img, Image.Image):
                             img = self._resize_image_if_needed(img)
                         images.append(img)
@@ -66,7 +67,7 @@ class VLMDataCollator:
         # Align number of provided images with the number of image tokens in text
         # Qwen2.5-VL replaces each <|image_pad|> occurrence with a number of tokens derived
         # from the processed images. If there are more placeholders than images provided,
-        # the processor raises an IndexError. To avoid this, adjust images accordingly.
+        # the processor raises an IndexError.
         adjusted_images_flat: List[Any] = []
         image_token: str = getattr(self.processor, "image_token", "<|image_pad|>")
         for idx, text in enumerate(texts):
@@ -77,18 +78,19 @@ class VLMDataCollator:
                 continue
 
             if provided == 0:
-                # Create a dummy black image as a fallback to satisfy placeholders
-                # Size 224x224 is a common default; the processor will resize as needed
-                dummy = Image.new("RGB", (224, 224), color=(0, 0, 0))
-                adjusted_images_flat.extend([dummy] * expected)
-                continue
+                raise ValueError(
+                    f"Sample {idx}: Expected {expected} image(s) but none were provided. "
+                    "All images must be present and loadable. Check image paths in your dataset."
+                )
 
-            if provided >= expected:
-                adjusted_images_flat.extend(images_batch[idx][:expected])
-            else:
-                # Repeat last available image to match expected placeholders
-                last_img = images_batch[idx][-1]
-                adjusted_images_flat.extend(images_batch[idx] + [last_img] * (expected - provided))
+            if provided < expected:
+                raise ValueError(
+                    f"Sample {idx}: Expected {expected} image(s) but only {provided} were provided. "
+                    "Ensure all image paths in the dataset are correct and files exist."
+                )
+
+            # Use only the expected number of images
+            adjusted_images_flat.extend(images_batch[idx][:expected])
 
         batch = self.processor(
             text=texts,

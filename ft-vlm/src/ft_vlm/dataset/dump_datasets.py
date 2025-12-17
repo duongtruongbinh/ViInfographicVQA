@@ -37,21 +37,25 @@ def _normalize_dump_item(
     return {"messages": messages}
 
 
-def _normalize_image_path(image: Any, images_base_dir: Optional[str]) -> Any:
-    if not isinstance(image, str) or images_base_dir is None:
-        return image
+def _normalize_image_path(image: Any, images_base_dir: Optional[str]) -> str:
+    """
+    Normalize image path strictly relative to base directory.
+    
+    Args:
+        image: Image path (string or other)
+        images_base_dir: Base directory for relative paths
+        
+    Returns:
+        Normalized image path string
+    """
+    if not isinstance(image, str):
+        return str(image)
     p = Path(image)
     if p.is_absolute():
         return str(p)
-    # Try relative to images_base_dir
-    candidate = Path(images_base_dir) / p
-    if candidate.exists():
-        return str(candidate)
-    # Try basename under images_base_dir
-    basename_candidate = Path(images_base_dir) / p.name
-    if basename_candidate.exists():
-        return str(basename_candidate)
-    return str(candidate)
+    if images_base_dir is None:
+        return str(p)
+    return str(Path(images_base_dir) / p)
 
 
 def _read_split_json(dataset_dir: str | Path, split: str) -> List[Dict[str, Any]]:
